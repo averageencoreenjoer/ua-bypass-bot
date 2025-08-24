@@ -2,7 +2,12 @@ from pathlib import Path
 from datetime import datetime
 from loguru import logger
 from src.emulator import MobileBrowser
+from src.captcha import CaptchaSolver
 
+
+solver = CaptchaSolver()
+solution_text = solver.solve_image_captcha("path/to/captcha.png")
+logger.info(f"Captcha solution: {solution_text}")
 RESULTS_HTML = Path("results/html")
 RESULTS_IMG = Path("results/screenshots")
 RESULTS_HTML.mkdir(parents=True, exist_ok=True)

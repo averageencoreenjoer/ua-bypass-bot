@@ -1,46 +1,55 @@
-import time
-import requests
 from loguru import logger
-from .config import ANTICAPTCHA_KEY
+import os
+import time
+from twocaptcha import TwoCaptcha
+from playwright.sync_api import Page
 
 
 class CaptchaSolver:
-    def __init__(self, api_key: str = ANTICAPTCHA_KEY):
+    def __init__(self):
+        api_key = os.getenv("TWO_CAPTCHA_API_KEY")
         if not api_key:
-            raise ValueError("ANTICAPTCHA_KEY is not set in .env")
-        self.api_key = api_key
-        self.in_url = "http://2captcha.com/in.php"
-        self.res_url = "http://2captcha.com/res.php"
+            logger.warning("2Captcha API key not set, solver will not work")
+        self.solver = TwoCaptcha(api_key) if api_key else None
 
-    def solve_image_captcha(self, image_path: str, timeout: int = 120) -> str:
-        """
-        Send image captcha to 2Captcha and return the solution text.
-        """
-        logger.info("Submitting captcha to 2Captcha...")
-        with open(image_path, "rb") as img:
-            files = {"file": img}
-            payload = {"key": self.api_key, "method": "post", "json": 1}
-            resp = requests.post(self.in_url, files=files, data=payload).json()
+    def is_captcha_html(self, html: str) -> bool:
+        text = html.lower()
+        needles = [
+            "our systems have detected unusual traffic",
+            "to continue, please verify",
+            "enter the characters you see",
+            "captcha",
+            "g-recaptcha",
+            "recaptcha/api2",
+        ]
+        return any(n in text for n in needles)
 
-        if resp.get("status") != 1:
-            raise RuntimeError(f"Failed to submit captcha: {resp.get('request')}")
+    def solve_recaptcha_v2(self, page: Page, sitekey: str, url: str, timeout=180) -> bool:
+        if not self.solver:
+            logger.error("2Captcha solver not initialized")
+            return False
 
-        captcha_id = resp["request"]
-        logger.info(f"Captcha submitted, ID: {captcha_id}, waiting for solution...")
+        try:
+            logger.info("Submitting captcha to 2Captcha...")
+            result = self.solver.recaptcha(sitekey=sitekey, url=url)
+            token = result.get("code")
+            if not token:
+                logger.error("No captcha token received from 2Captcha")
+                return False
 
-        start_time = time.time()
-        while True:
-            time.sleep(5)
-            check = requests.get(
-                self.res_url, params={"key": self.api_key, "action": "get", "id": captcha_id, "json": 1}
-            ).json()
-
-            if check.get("status") == 1:
-                solution = check["request"]
-                logger.success(f"Captcha solved: {solution}")
-                return solution
-
-            if time.time() - start_time > timeout:
-                raise TimeoutError("Captcha solving timed out.")
-
-            logger.debug("Waiting for captcha solution...")
+            logger.info("Injecting captcha token into page...")
+            page.evaluate(
+                """token => {
+                    document.querySelectorAll('textarea[name="g-recaptcha-response"]').forEach(el => el.value = token);
+                }""",
+                token
+            )
+            page.evaluate("""() => {
+                let form = document.querySelector('form');
+                if (form) form.submit();
+            }""")
+            time.sleep(3)
+            return True
+        except Exception as e:
+            logger.error(f"2Captcha solving failed: {e}")
+            return False

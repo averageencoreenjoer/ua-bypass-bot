@@ -1,7 +1,3 @@
-"""
-Proxy manager with rotation support.
-"""
-
 from itertools import cycle
 from loguru import logger
 from .config import PROXY_LIST_PATH

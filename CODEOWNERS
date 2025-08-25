@@ -1,1 +1,44 @@
-@averageencoreenjoer
+# .github/CODEOWNERS
+
+# =============================================================================
+# Default Owner
+#
+# Assign a default owner for all files not matched by other rules.
+# This ensures every part of the codebase has at least one reviewer.
+# =============================================================================
+*       @averageencoreenjoer
+
+# =============================================================================
+# Core Application Logic
+#
+# Ownership for the main components of the bot.
+# =============================================================================
+/src/emulator.py      @averageencoreenjoer
+/src/captcha.py       @averageencoreenjoer
+/src/proxy.py         @averageencoreenjoer
+/src/search.py        @averageencoreenjoer
+
+# =============================================================================
+# Configuration & Deployment
+#
+# Rules for critical configuration files, dependencies, and containerization.
+# =============================================================================
+Dockerfile              @averageencoreenjoer
+requirements.txt        @averageencoreenjoer
+requirements-dev.txt    @averageencoreenjoer
+
+# =============================================================================
+# Documentation and Project Standards
+#
+# Anyone can suggest changes, but the core owner should approve them.
+# =============================================================================
+README.md               @averageencoreenjoer
+CONTRIBUTING.md         @averageencoreenjoer
+.github/                @averageencoreenjoer
+
+# =============================================================================
+# Testing
+#
+# The core owner is responsible for maintaining the quality of tests.
+# =============================================================================
+/tests/                 @averageencoreenjoer

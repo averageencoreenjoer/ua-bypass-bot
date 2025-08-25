@@ -10,6 +10,7 @@ logs/*.log
 
 results/html/
 results/screenshots/
+results/data/
 
 .idea/
 .vscode/

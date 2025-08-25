@@ -28,7 +28,7 @@ This guide will walk you through setting up and running the application on your 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://your-repository-url/ua-bypass-bot.git
+git clone https://github.com/averageencoreenjoer/ua-bypass-bot.git
 cd ua-bypass-bot
 ```
 

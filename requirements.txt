@@ -1,0 +1,10 @@
+playwright
+beautifulsoup4
+loguru
+python-dotenv
+requests
+Pillow
+twocaptcha
+pytest
+pytest-mock
+pandas

@@ -68,7 +68,7 @@ Before running the bot, you need to configure a few things:
 
 **A) Create a Proxy List**
 
-Create a file at `src/proxy.txt`. Add your proxies to this file, one per line, in the format `http://user:pass@host:port`. The bot will not start if this file is empty and `--use-proxy` is enabled.
+Create a file at `proxies.txt`. Add your proxies to this file, one per line, in the format `http://user:pass@host:port`. The bot will not start if this file is empty and `--use-proxy` is enabled.
 
 **B) Set up Environment Variables** (Optional)
 
